@@ -1,9 +1,13 @@
 import streamlit as st
 import pandas as pd
-from utils.data_generator import generate_historical_data, get_cities
+from utils.data_generator import get_historical_data, get_cities
 from utils.predictor import AQIPredictor
+from utils.database import get_db
 from components.charts import create_historical_chart, create_gauge_chart
 from components.inputs import city_input, environmental_inputs
+
+# Initialize database session
+db = next(get_db())
 
 # Page config
 st.set_page_config(
@@ -27,12 +31,12 @@ st.markdown("Predict and analyze air quality for cities worldwide")
 with st.container():
     # City selection and environmental inputs
     col1, col2 = st.columns([1, 2])
-    
+
     with col1:
         st.markdown('<div class="custom-card">', unsafe_allow_html=True)
         selected_city = city_input(get_cities())
         st.markdown('</div>', unsafe_allow_html=True)
-    
+
     with col2:
         st.markdown('<div class="custom-card">', unsafe_allow_html=True)
         temperature, humidity, wind_speed = environmental_inputs()
@@ -42,12 +46,14 @@ with st.container():
 if st.button("Predict Air Quality"):
     with st.spinner("Analyzing air quality..."):
         # Get prediction
-        predicted_aqi = predictor.predict_aqi(temperature, humidity, wind_speed)
+        predicted_aqi = predictor.predict_aqi(
+            selected_city, temperature, humidity, wind_speed, db
+        )
         aqi_level, level_color = predictor.get_aqi_level(predicted_aqi)
-        
+
         # Display prediction
         col1, col2 = st.columns(2)
-        
+
         with col1:
             st.markdown(
                 f'<div class="metric-card" style="border-left-color: {level_color}">'
@@ -57,7 +63,7 @@ if st.button("Predict Air Quality"):
                 '</div>',
                 unsafe_allow_html=True
             )
-            
+
         with col2:
             st.plotly_chart(
                 create_gauge_chart(predicted_aqi),
@@ -66,7 +72,7 @@ if st.button("Predict Air Quality"):
 
 # Historical data section
 st.markdown("### Historical Data")
-historical_data = generate_historical_data(selected_city)
+historical_data = get_historical_data(selected_city, db)
 st.plotly_chart(
     create_historical_chart(historical_data),
     use_container_width=True
