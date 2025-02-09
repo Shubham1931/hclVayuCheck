@@ -11,16 +11,23 @@ def generate_and_store_historical_data(city: str, db: Session) -> None:
 
     # Adjust baseline AQI based on typical Indian city patterns
     base_aqi = {
-        'Delhi': 150,
-        'Mumbai': 100,
-        'Bangalore': 80,
-        'Chennai': 90,
-        'Kolkata': 120,
-        'Hyderabad': 85,
-        'Pune': 75,
-        'Ahmedabad': 110,
-        'Jaipur': 130,
-        'Lucknow': 140
+        # North India
+        'Delhi': 150, 'Gurugram': 140, 'Noida': 145, 'Chandigarh': 95,
+        'Lucknow': 130, 'Kanpur': 135, 'Varanasi': 120, 'Patna': 125,
+        'Jaipur': 110, 'Jodhpur': 100,
+
+        # West India
+        'Mumbai': 95, 'Pune': 85, 'Ahmedabad': 105, 'Surat': 90,
+        'Nagpur': 80, 'Indore': 95, 'Bhopal': 90,
+
+        # South India
+        'Bangalore': 70, 'Chennai': 80, 'Hyderabad': 85, 'Kochi': 60,
+        'Thiruvananthapuram': 55, 'Mysuru': 65, 'Coimbatore': 70,
+        'Visakhapatnam': 75, 'Mangalore': 60,
+
+        # East India
+        'Kolkata': 110, 'Bhubaneswar': 85, 'Guwahati': 80,
+        'Shillong': 60, 'Gangtok': 55, 'Imphal': 65
     }.get(city, 80)  # Default value for other cities
 
     # Generate 30 days of data
@@ -75,8 +82,23 @@ def get_historical_data(city: str, db: Session) -> pd.DataFrame:
     } for r in records])
 
 def get_cities() -> List[str]:
-    """Return a list of major Indian cities"""
+    """Return a list of major Indian cities grouped by region"""
     return [
-        "Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata",
-        "Hyderabad", "Pune", "Ahmedabad", "Jaipur", "Lucknow"
+        # North India
+        "Delhi", "Gurugram", "Noida", "Chandigarh",
+        "Lucknow", "Kanpur", "Varanasi", "Patna",
+        "Jaipur", "Jodhpur",
+
+        # West India
+        "Mumbai", "Pune", "Ahmedabad", "Surat",
+        "Nagpur", "Indore", "Bhopal",
+
+        # South India
+        "Bangalore", "Chennai", "Hyderabad", "Kochi",
+        "Thiruvananthapuram", "Mysuru", "Coimbatore",
+        "Visakhapatnam", "Mangalore",
+
+        # East India
+        "Kolkata", "Bhubaneswar", "Guwahati",
+        "Shillong", "Gangtok", "Imphal"
     ]

@@ -8,16 +8,23 @@ class AQIPredictor:
         self.model = LinearRegression()
         # City-specific pollution factors
         self.city_factors = {
-            'Delhi': 1.5,
-            'Mumbai': 1.2,
-            'Bangalore': 0.9,
-            'Chennai': 1.0,
-            'Kolkata': 1.3,
-            'Hyderabad': 0.95,
-            'Pune': 0.85,
-            'Ahmedabad': 1.1,
-            'Jaipur': 1.2,
-            'Lucknow': 1.3
+            # North India (generally higher pollution levels)
+            'Delhi': 1.5, 'Gurugram': 1.45, 'Noida': 1.45, 'Chandigarh': 1.1,
+            'Lucknow': 1.3, 'Kanpur': 1.35, 'Varanasi': 1.25, 'Patna': 1.3,
+            'Jaipur': 1.2, 'Jodhpur': 1.15,
+
+            # West India (moderate pollution levels)
+            'Mumbai': 1.2, 'Pune': 0.95, 'Ahmedabad': 1.1, 'Surat': 1.0,
+            'Nagpur': 0.9, 'Indore': 1.05, 'Bhopal': 1.0,
+
+            # South India (generally lower pollution levels)
+            'Bangalore': 0.9, 'Chennai': 1.0, 'Hyderabad': 0.95, 'Kochi': 0.7,
+            'Thiruvananthapuram': 0.65, 'Mysuru': 0.75, 'Coimbatore': 0.8,
+            'Visakhapatnam': 0.85, 'Mangalore': 0.7,
+
+            # East India (varied pollution levels)
+            'Kolkata': 1.3, 'Bhubaneswar': 0.95, 'Guwahati': 0.9,
+            'Shillong': 0.7, 'Gangtok': 0.65, 'Imphal': 0.75
         }
 
     def get_aqi_level(self, aqi):
