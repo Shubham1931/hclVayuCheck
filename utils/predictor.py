@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 from .database import AirQualityRecord
+from .cities_data import get_region_and_state, get_city_size_factor
 
 class AQIPredictor:
     def __init__(self):
@@ -46,6 +47,24 @@ class AQIPredictor:
         """Predict AQI based on Indian city characteristics"""
         # Get city-specific factor
         city_factor = self.city_factors.get(city, 1.0)
+
+        # Get region and state-based factors
+        region, state = get_region_and_state(city)
+        region_factors = {
+            "North": 1.2,  # Higher pollution in North India
+            "South": 0.8,  # Lower pollution in South India
+            "East": 1.0,   # Moderate pollution in East India
+            "West": 1.1,   # Slightly higher pollution in West India
+            "Northeast": 0.7  # Lower pollution in Northeast India
+        }
+        region_factor = region_factors.get(region, 1.0)
+
+        # Get city size factor
+        size_factor = get_city_size_factor(city)
+
+        # Calculate combined factor
+        if city not in self.city_factors:
+            city_factor = region_factor * size_factor
 
         # Season factor (higher in winter months)
         current_month = datetime.now().month
