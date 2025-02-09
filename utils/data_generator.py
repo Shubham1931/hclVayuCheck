@@ -9,15 +9,32 @@ def generate_and_store_historical_data(city: str, db: Session) -> None:
     """Generate and store mock historical AQI data for a city"""
     np.random.seed(hash(city) % 100)
 
+    # Adjust baseline AQI based on typical Indian city patterns
+    base_aqi = {
+        'Delhi': 150,
+        'Mumbai': 100,
+        'Bangalore': 80,
+        'Chennai': 90,
+        'Kolkata': 120,
+        'Hyderabad': 85,
+        'Pune': 75,
+        'Ahmedabad': 110,
+        'Jaipur': 130,
+        'Lucknow': 140
+    }.get(city, 80)  # Default value for other cities
+
     # Generate 30 days of data
     for i in range(30):
         date = datetime.now() - timedelta(days=30-i)
 
+        # Add seasonal and daily variations
+        season_factor = 1.2 if date.month in [11, 12, 1] else 0.8  # Higher in winter
+
         # Convert numpy values to Python native types
-        aqi = float(np.clip(np.random.normal(loc=80, scale=20), 0, 300))
-        temperature = float(np.random.normal(25, 5))
-        humidity = float(np.random.normal(60, 10))
-        wind_speed = float(np.random.normal(15, 5))
+        aqi = float(np.clip(np.random.normal(loc=base_aqi, scale=30) * season_factor, 0, 500))
+        temperature = float(np.random.normal(30, 5))  # Typical Indian temperatures
+        humidity = float(np.random.normal(65, 15))
+        wind_speed = float(np.random.normal(12, 4))
 
         record = AirQualityRecord(
             city=city,
@@ -58,8 +75,8 @@ def get_historical_data(city: str, db: Session) -> pd.DataFrame:
     } for r in records])
 
 def get_cities() -> List[str]:
-    """Return a list of sample cities"""
+    """Return a list of major Indian cities"""
     return [
-        "New York", "London", "Tokyo", "Paris", "Beijing",
-        "Mumbai", "Singapore", "Sydney", "Dubai", "Moscow"
+        "Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata",
+        "Hyderabad", "Pune", "Ahmedabad", "Jaipur", "Lucknow"
     ]

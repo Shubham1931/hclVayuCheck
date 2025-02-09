@@ -6,32 +6,57 @@ from .database import AirQualityRecord
 class AQIPredictor:
     def __init__(self):
         self.model = LinearRegression()
+        # City-specific pollution factors
+        self.city_factors = {
+            'Delhi': 1.5,
+            'Mumbai': 1.2,
+            'Bangalore': 0.9,
+            'Chennai': 1.0,
+            'Kolkata': 1.3,
+            'Hyderabad': 0.95,
+            'Pune': 0.85,
+            'Ahmedabad': 1.1,
+            'Jaipur': 1.2,
+            'Lucknow': 1.3
+        }
 
     def get_aqi_level(self, aqi):
-        """Return AQI level and color based on value"""
+        """Return AQI level and color based on Indian AQI standards"""
         if aqi <= 50:
             return "Good", "#4CAF50"
         elif aqi <= 100:
-            return "Moderate", "#FFC107"
-        elif aqi <= 150:
-            return "Unhealthy for Sensitive Groups", "#FF9800"
+            return "Satisfactory", "#90EE90"
         elif aqi <= 200:
-            return "Unhealthy", "#FF5722"
+            return "Moderate", "#FFC107"
         elif aqi <= 300:
-            return "Very Unhealthy", "#9C27B0"
+            return "Poor", "#FF9800"
+        elif aqi <= 400:
+            return "Very Poor", "#FF5722"
         else:
-            return "Hazardous", "#FF0000"
+            return "Severe", "#9C27B0"
 
     def predict_aqi(self, city, temperature, humidity, wind_speed, db):
-        """Predict AQI and store in database"""
-        # Simple weighted calculation for demonstration
+        """Predict AQI based on Indian city characteristics"""
+        # Get city-specific factor
+        city_factor = self.city_factors.get(city, 1.0)
+
+        # Season factor (higher in winter months)
+        current_month = datetime.now().month
+        season_factor = 1.3 if current_month in [11, 12, 1] else 1.0
+
+        # Calculate base AQI
         predicted_aqi = float(
-            temperature * 1.5 +
-            humidity * 0.8 +
-            wind_speed * (-0.5) +
+            temperature * 2.0 +  # Higher impact of temperature
+            humidity * 0.8 +     # Moderate impact of humidity
+            wind_speed * (-1.5) + # Strong negative impact of wind
             np.random.normal(0, 5)  # Add some randomness
         )
-        predicted_aqi = float(max(0, min(300, predicted_aqi)))  # Clip between 0 and 300
+
+        # Apply city and season factors
+        predicted_aqi = predicted_aqi * city_factor * season_factor
+
+        # Clip to valid AQI range for India (0-500)
+        predicted_aqi = float(max(0, min(500, predicted_aqi)))
 
         # Store prediction
         record = AirQualityRecord(
