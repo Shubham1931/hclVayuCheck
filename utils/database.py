@@ -3,6 +3,8 @@ from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Get database URL from environment
 DATABASE_URL = os.getenv('DATABASE_URL')

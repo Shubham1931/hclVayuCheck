@@ -1,5 +1,4 @@
 import streamlit as st
-
 def city_input(cities):
     """Create city selection input"""
     return st.selectbox(
